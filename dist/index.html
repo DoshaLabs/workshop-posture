@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en" data-view="tile">
+  <head>
+    <meta charset="utf-8" />
+    <!-- No network: MediaPipe and both models are files of this tile. 'wasm-unsafe-eval' lets the
+         page compile MediaPipe's WebAssembly; connect-src 'self' lets it fetch the .wasm and the models. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src 'self'; style-src 'self'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; img-src 'self'" />
+    <title>Posture</title>
+    <link rel="stylesheet" href="tile.css" />
+  </head>
+  <body>
+    <script type="module" src="tile.js"></script>
+  </body>
+</html>

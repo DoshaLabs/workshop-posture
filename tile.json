@@ -1,0 +1,20 @@
+{
+  "id": "posture",
+  "name": "Posture",
+  "version": "0.1.0",
+  "workshop": "^1",
+  "author": "DoshaLabs",
+  "repo": "https://github.com/DoshaLabs/workshop-posture",
+  "hint": "A streak for sitting well, and a thumbs up or a middle finger for your session",
+  "icon": "icon.svg",
+  "entry": "dist/index.html",
+  "pane": true,
+  "multiple": false,
+  "span": 1,
+  "permissions": {
+    "camera": true,
+    "storage": true,
+    "notify": true,
+    "sessions": "write"
+  }
+}
