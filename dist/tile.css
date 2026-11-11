@@ -38,8 +38,8 @@ button:focus-visible,
   opacity: 0;
   pointer-events: none;
 }
-html:not([data-view='tile']) .tile-view,
-html[data-view='tile'] .pane-view {
+html[data-view='pane'] .tile-view,
+html:not([data-view='pane']) .pane-view {
   display: none;
 }
 
@@ -286,7 +286,20 @@ html.alarm .tile-view .clock {
   padding: 9px 14px;
   transition: color 0.15s, border-color 0.15s;
 }
-.ghost:hover {
+.ghost.reset {
+  padding: 5px 12px;
+  font-size: 13px;
+}
+.ghost.reset.armed {
+  color: var(--ws-bg);
+  background: var(--ws-red);
+  border-color: var(--ws-red);
+}
+.ghost:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.ghost:hover:not(:disabled):not(.armed) {
   color: var(--ws-ink);
   border-color: color-mix(in srgb, var(--ws-accent) 50%, var(--ws-line));
 }
@@ -663,4 +676,46 @@ section h2 {
   .burst {
     animation: burst-out 2.4s steps(1, end) both;
   }
+}
+
+/* ---- popped out (workshop.view 'float'): a small square, the camera filling it, the streak over a
+   shade at its foot. Everything else of the tile's face stays home. ---------------------------- */
+html[data-view='float'] .tile-view {
+  position: relative;
+  display: block;
+  padding: 0;
+  cursor: default;
+}
+html[data-view='float'] .feed-box.small {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+html[data-view='float'] .side {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  gap: 4px;
+  padding: 28px 10px 8px;
+  background: linear-gradient(to top, color-mix(in srgb, var(--ws-bg) 88%, transparent), transparent);
+  pointer-events: none;
+}
+html[data-view='float'] .side .go {
+  pointer-events: auto;
+}
+html[data-view='float'] .clock {
+  font-size: 28px;
+}
+html[data-view='float'] .mini,
+html[data-view='float'] .tallies {
+  display: none;
+}
+html[data-view='float'] .seeing {
+  font-size: 40px;
+  align-items: flex-start;
+}
+html[data-view='float'] .b-emoji {
+  font-size: 84px;
 }

@@ -26,6 +26,11 @@ hand), the last two hours with totals, strictness, and the gestures.
 
 A gesture counts after you hold it for about half a second, once; drop your hand to make another.
 The same gesture again waits six seconds.
+**Reset counts**, beside Gestures in the pane, clears today's counts and the list (two clicks).
+
+**Pop out** (⧉ on the tile's head, workshop 1.8 and later): the camera and your streak in a small
+square over the window, at the top right of the session you're working in. Drag its strip to move
+it; × puts it back.
 
 ## Develop
 

@@ -45,6 +45,9 @@ const today = () => {
 
 async function onGesture(kind) {
   const g = GESTURE[kind]
+  // Asked fresh: sessions.watch fires only on a change, so the copy kept from it can be empty or old
+  // (a page that has just loaded, a session focused since). The copy is only for drawing.
+  if (send) sessions = await ws.sessions.list().catch(() => sessions)
   const focused = sessions.find((s) => s.focused && s.open)
   let sent = null
   let why = ''
@@ -166,7 +169,7 @@ const tAct = el('button', { class: 'go small', onclick: (e) => (e.stopPropagatio
 const tTallies = Object.fromEntries(KINDS.map((k) => [k, el('span', { class: 'tally', title: `${GESTURE[k].name} today` })]))
 const tileRoot = el(
   'main',
-  { class: 'tile-view', title: 'Open Posture large', onclick: () => ws.openPane().catch(() => {}) },
+  { class: 'tile-view', title: 'Open Posture large', onclick: () => ws.view === 'tile' && ws.openPane().catch(() => {}) },
   tileFeed.box,
   el('div', { class: 'side' }, el('div', {}, tClock, tSub), tAct, tMini, el('div', { class: 'tallies' }, Object.values(tTallies)))
 )
@@ -213,6 +216,27 @@ sendBox.addEventListener('change', () => {
   ws.storage.set('send', send).catch(() => {})
   update()
 })
+// Reset: two clicks, as workshop's destructive buttons are. The first arms it red for three
+// seconds; the second clears the counts and the log.
+const gReset = el('button', { class: 'ghost reset', title: 'Clear today’s counts and the list below' }, 'Reset counts')
+let armTimer
+gReset.addEventListener('click', () => {
+  if (!gReset.classList.contains('armed')) {
+    gReset.classList.add('armed')
+    gReset.textContent = 'Click again to reset'
+    armTimer = setTimeout(disarm, 3000)
+    return
+  }
+  disarm()
+  reactions = []
+  ws.storage.set('reactions', reactions).catch(() => {})
+  update()
+})
+function disarm() {
+  clearTimeout(armTimer)
+  gReset.classList.remove('armed')
+  gReset.textContent = 'Reset counts'
+}
 const sendWhere = el('span')
 const recent = el('ol', { class: 'recent' })
 
@@ -230,7 +254,7 @@ const paneRoot = el(
     el(
       'section',
       { class: 'extras' },
-      el('h2', {}, 'Gestures'),
+      el('div', { class: 'h-row' }, el('h2', {}, 'Gestures'), gReset),
       el('p', { class: 'hint' }, 'Hold a thumbs up, a thumbs down or a middle finger up to the camera for a moment. Each one counts once; drop your hand to make another.'),
       el('div', { class: 'gestures' }, Object.values(gCards).map((c) => c.node)),
       el('label', { class: 'switch' }, sendBox, el('span', { class: 'track' }), el('span', {}, el('b', {}, 'Tell the session in focus'), sendWhere)),
@@ -255,8 +279,9 @@ let lastBadge = ''
 function update() {
   const v = tracker.view
   const now = Date.now()
-  const view = ws.view === 'tile' ? 'tile' : 'pane'
-  document.documentElement.dataset.view = view
+  // A float (popped out, bridge 1.8) is the tile's own face in a square; an overlay is never asked for.
+  const view = ws.view === 'tile' || ws.view === 'float' ? 'tile' : 'pane'
+  document.documentElement.dataset.view = ws.view === 'float' ? 'float' : view
   const t = summarize(v.history, now)
   const seen = t.good + t.bad
   const running = v.streakSince !== null
@@ -367,6 +392,7 @@ function update() {
     )
   )
   show(recent, last.length > 0)
+  gReset.disabled = reactions.length === 0 && !gReset.classList.contains('armed')
 }
 
 // ---- start ---------------------------------------------------------------------------------------
@@ -375,10 +401,13 @@ const stored = await Promise.all([ws.storage.get('reactions'), ws.storage.get('s
 reactions = Array.isArray(stored[0]) ? stored[0].filter(isReaction) : []
 send = stored[1] !== false
 
+// watch fires only when the list changes, never at once: read it now too, or the page knows no
+// session until the next one starts, stops or changes status.
 ws.sessions.watch((list) => {
   sessions = list
   update()
 })
+sessions = await ws.sessions.list().catch(() => [])
 ws.onViewChange(() => update())
 tracker.subscribe(() => update())
 tracker.onGesture((kind) => void onGesture(kind))

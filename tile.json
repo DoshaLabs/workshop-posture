@@ -1,7 +1,7 @@
 {
   "id": "posture",
   "name": "Posture",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "workshop": "^1",
   "author": "DoshaLabs",
   "repo": "https://github.com/DoshaLabs/workshop-posture",
@@ -9,6 +9,7 @@
   "icon": "icon.svg",
   "entry": "dist/index.html",
   "pane": true,
+  "float": true,
   "multiple": false,
   "span": 1,
   "permissions": {
